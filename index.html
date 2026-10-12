@@ -1,104 +1,29 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𝚔𝚊𝚒𝚣𝚘𝚝𝚛𝚊𝚙</title>
 <link rel="stylesheet" href="style.css">
-<title>𝚔𝚊𝚒𝚣𝚘𝚝𝚛𝚊𝚙</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 </head>
 <body>
-<p>カイゾトラップ (kaizotrap)_</p>
-<canvas id="c"></canvas>
-
-<script>
-  const canvas = document.getElementById('c');
-  const ctx = canvas.getContext('2d');
-  const picker = document.getElementById('color');
-  const ink = () => '#fb8600';
-
-  let strokes = [];
-  let current = null;
-  let w = 0, h = 0;
-
-  let PX = 8;
-
-  function pixel(a, b, color) {
-    ctx.fillStyle = color;
-    const dist = Math.hypot(b.x - a.x, b.y - a.y);
-    const steps = Math.max(1, Math.ceil(dist / (PX / 2)));
-    for (let i = 0; i <= steps; i++) {
-      const x = a.x + (b.x - a.x) * i / steps;
-      const y = a.y + (b.y - a.y) * i / steps;
-      ctx.fillRect(Math.floor(x / PX) * PX, Math.floor(y / PX) * PX, PX, PX);
-    }
-  }
-
-  function redraw() {
-    const dpr = window.devicePixelRatio || 1;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
-    for (const s of strokes) {
-      pixel(s.pts[0], s.pts[0], s.color);
-      for (let i = 1; i < s.pts.length; i++) pixel(s.pts[i - 1], s.pts[i], s.color);
-    }
-  }
-
-  function resize() {
-    const nw = window.innerWidth, nh = window.innerHeight;
-    if (!nw || !nh || (nw === w && nh === h)) return;
-    w = nw; h = nh;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    redraw();
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-    const step = 1;
-  const min = 4;
-  const max = 100;
-
-window.addEventListener('wheel', (e) => {
-  e.preventDefault();
-
-  if (e.deltaY < 0) {
-    PX += step;
-  } else {
-    PX -= step;
-  }
-  console.log(PX)
-  PX = Math.min(max, Math.max(min, PX));
-  redraw();
-}, { passive: false });
-
-  canvas.addEventListener('pointerdown', e => {
-    current = { color: ink(), pts: [{ x: e.clientX, y: e.clientY }] };
-    strokes.push(current);
-    canvas.setPointerCapture(e.pointerId);
-    redraw();
-  });
-
-  canvas.addEventListener('pointermove', e => {
-    if (!current) return;
-    const p = { x: e.clientX, y: e.clientY };
-    const prev = current.pts[current.pts.length - 1];
-    current.pts.push(p);
-    pixel(prev, p, current.color);
-  });
-
-  const stop = () => { current = null; };
-  canvas.addEventListener('pointerup', stop);
-  canvas.addEventListener('pointercancel', stop);
-
-  document.getElementById('clear').addEventListener('click', () => {
-    strokes = [];
-    redraw();
-  });
-</script>
+    <p>カイゾトラップ kaizotrap/autorun_v121026.exe
+        <br>-------------
+        <br><span id="welcome"></span>
+        <br>-------------
+        <br><a href="./szkicownik/index.html">szkicownik_v121026.exe</a></p>
 </body>
+<script>
+        let welcome = "DZIEN DOBRY, SWIECIE"
+        let hour = new Date().getHours();
+        console.log(hour)
+        if(hour >= 18 || hour <=4){
+            welcome = "DOBRY WIECZOR, SWIECIE"
+        }
+        let welcomeSpan = document.getElementById("welcome");
+        welcomeSpan.textContent = welcome;
+</script>
 </html>

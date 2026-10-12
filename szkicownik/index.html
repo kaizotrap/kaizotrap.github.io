@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="style.css">
+<title>Szkicownik</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+</head>
+<body>
+<p>カイゾトラップ kaizotrap/szkicownik_v121026.exe<br>----------<br>SZKICOWNIK<br>----------<br></p>
+<canvas id="c"></canvas>
+
+<script>
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const ink = () => '#fb8600';
+
+  // Rysunek trzymamy jako dane (lista kresek), a canvas tylko je wyświetla.
+  let strokes = [];
+  let current = null;
+  let w = 0, h = 0;
+
+  // Rozmiar jednego "piksela" w stylu retro (większa liczba = grubszy piksel)
+  let PX = 8; // zmienia się kółkiem myszy (2–64)
+
+  // Rysuje odcinek jako kwadraty przyciągnięte do siatki
+  function pixel(a, b, color, px) {
+    ctx.fillStyle = color;
+    const dist = Math.hypot(b.x - a.x, b.y - a.y);
+    const steps = Math.max(1, Math.ceil(dist / (px / 2)));
+    for (let i = 0; i <= steps; i++) {
+      const x = a.x + (b.x - a.x) * i / steps;
+      const y = a.y + (b.y - a.y) * i / steps;
+      ctx.fillRect(Math.floor(x / px) * px, Math.floor(y / px) * px, px, px);
+    }
+  }
+
+  function redraw() {
+    const dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    for (const s of strokes) {
+      pixel(s.pts[0], s.pts[0], s.color, s.px);
+      for (let i = 1; i < s.pts.length; i++) pixel(s.pts[i - 1], s.pts[i], s.color, s.px);
+    }
+  }
+
+  function resize() {
+    const nw = window.innerWidth, nh = window.innerHeight;
+    if (!nw || !nh || (nw === w && nh === h)) return; // ignoruj puste/niezmienione rozmiary
+    w = nw; h = nh;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    redraw();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  canvas.addEventListener('pointerdown', e => {
+    current = { color: ink(), px: PX, pts: [{ x: e.clientX, y: e.clientY }] };
+    strokes.push(current);
+    canvas.setPointerCapture(e.pointerId);
+    redraw();
+  });
+
+  canvas.addEventListener('pointermove', e => {
+    if (!current) return;
+    const p = { x: e.clientX, y: e.clientY };
+    const prev = current.pts[current.pts.length - 1];
+    current.pts.push(p);
+    pixel(prev, p, current.color, current.px);
+  });
+
+  // Kółko myszy zmienia rozmiar piksela (w górę = większy). Dotyczy nowych kresek.
+  let wheelAcc = 0;
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    wheelAcc += e.deltaY;
+    while (Math.abs(wheelAcc) >= 50) {
+      PX = Math.min(64, Math.max(2, PX + (wheelAcc < 0 ? 1 : -1)));
+      wheelAcc -= Math.sign(wheelAcc) * 50;
+    }
+  }, { passive: false });
+
+  const stop = () => { current = null; };
+  canvas.addEventListener('pointerup', stop);
+  canvas.addEventListener('pointercancel', stop);
+
+</script>
+</body>
+</html>

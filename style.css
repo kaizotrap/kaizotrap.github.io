@@ -10,14 +10,7 @@ html, body {
     overflow: hidden;
     background: #2c0800;
     font-family: 'DotGothic16', sans-serif;
-  }
-  canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
-    cursor:pointer;
-    filter: drop-shadow(0 0 5px #ef7900);
+    cursor: url("./cursor.png") 8 0,auto;
   }
   p{
     position:absolute;
@@ -28,4 +21,15 @@ html, body {
     filter: drop-shadow(0 0 5px #ef7900);
     font-weight: lighter;
     user-select: none;
+  }
+
+  a{
+    text-decoration: none;
+    color: #fb8600;
+    cursor: url("./cursor2.png") 8 0,auto;
+  }
+  
+  a:hover{
+    color:#2c0800;
+    background-color: #fb8600;
   }
