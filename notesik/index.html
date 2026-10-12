@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notesik</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+</head>
+<body>
+    <p>カイゾトラップ kaizotrap/notesik_v121026.exe
+    <br>-------------
+    <br>NOTESIK
+    <br>-------------
+    <br>Narzędzie: <span id="toolText">Kursor</span>
+    <br>(Esc - Kursor, 1 - Tekst, 2 - Przesuń, "+" - Powieksz, "-" - Pomniejsz)
+    </p>    
+</body>
+<script>
+    //kluczowe zmienne 
+    let tool = 0;
+
+    //obiekty z html
+    const toolText = document.getElementById("toolText");
+
+    //ustawianie narzedzia
+    let setTool = (newTool) => {
+        tool = newTool;
+        document.activeElement.blur();
+
+        //blokowanie edycji textboxow
+        document.querySelectorAll(".textbox").forEach((tb) => {
+        if(tool == 1){
+            tb.contentEditable = "true";
+        }else{
+            tb.contentEditable = "false";
+        }
+  });
+    }
+
+    //sprawdzanie wcisniecia przycisku na klawiaturze
+    window.addEventListener("keydown", (e) => {
+        if(e.key == "Escape"){
+            setTool(0);
+            toolText.textContent = "Kursor"
+        }
+        if(e.key == "1"){
+            setTool(1);
+            toolText.textContent = "Tekst"
+        }
+        if(e.key == "2"){
+            setTool(2);
+            toolText.textContent = "Przesun"
+        }
+        if(e.key == "=" || e.key == "+"){
+            setTool(3);
+            toolText.textContent = "Powieksz"
+        }
+        if(e.key == "-"){
+            setTool(4);
+            toolText.textContent = "Pomniejsz"
+        }
+
+    })
+
+    //funckje przerozne przy klikaniu
+    window.addEventListener("click", (e) => {
+        //dodawanie tekstu
+        if(tool == 1){
+            if (e.target.closest(".textbox")) return;
+            const textbox = document.createElement("div");
+            textbox.classList.add("textbox");
+            textbox.contentEditable = "true";
+            textbox.style.left = e.pageX + "px";
+            textbox.style.top = e.pageY + "px";
+            textbox.spellcheck = false;
+            document.body.appendChild(textbox);
+            textbox.focus();
+        }
+
+        //powiekszanie tekstu
+        if(tool == 3){
+            const box = e.target.closest(".textbox");
+            if (!box) return;
+            style = getComputedStyle(box);
+            size = parseFloat(style.fontSize);
+            size += 10;
+            box.style.fontSize = size + "px";
+        }
+
+        //pomniejszanie tekstu
+        if(tool == 4){
+            const box = e.target.closest(".textbox");
+            if (!box) return;
+            style = getComputedStyle(box);
+            size = parseFloat(style.fontSize);
+            size -= 10;
+            box.style.fontSize = size + "px";
+        }
+    })
+
+    //przesuwanie
+    let dragged = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    window.addEventListener("mousedown", (e) => {
+        if (tool !== 2) return; 
+
+        const box = e.target.closest(".textbox");
+        if (!box) return;
+
+        e.preventDefault();
+        dragged = box;
+        dragged.classList.add("dragged");
+        offsetX = e.pageX - box.offsetLeft;
+        offsetY = e.pageY - box.offsetTop;
+
+        });
+
+        window.addEventListener("mousemove", (e) => {
+        if (!dragged) return;
+        dragged.style.left = e.pageX - offsetX + "px";
+        dragged.style.top = e.pageY - offsetY + "px";
+        });
+
+        window.addEventListener("mouseup", () => {
+        dragged.classList.remove("dragged");
+        dragged = null;
+    });
+
+</script>
+</html>
